@@ -1,0 +1,480 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚀 Junior Astronaut Mission Trainer</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+
+  <!-- Dynamic Live Space Background Canvas -->
+  <canvas id="space-canvas"></canvas>
+
+  <!-- Celebration Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Main Application Wrapper -->
+  <div id="app-container">
+
+    <!-- Top Universal HUD Bar (Persistent during gameplay & selection) -->
+    <header id="hud-bar" class="hidden">
+      <!-- Trainee Profile -->
+      <div class="hud-profile">
+        <div class="hud-avatar-frame" id="hud-avatar-slot">
+          <!-- Populated by JS -->
+        </div>
+        <div class="hud-info">
+          <div class="hud-name" id="hud-trainee-name">Cadet Alex</div>
+          <div class="hud-subinfo">
+            <span id="hud-trainee-id">ID: ASTRO-77</span>
+            <span class="mode-badge" id="hud-mode-badge">Basic</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Vitals & Stats (Energy, Immunity, Experience) -->
+      <div class="hud-stats">
+        <!-- ⚡ Energy Bar -->
+        <div class="stat-pill" title="Energy Level (Used while completing tasks)">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-details">
+            <div class="stat-label-row">
+              <span>ENERGY</span>
+              <span id="stat-energy-val">100/100</span>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill energy" id="bar-energy-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🛡 Immunity Bar -->
+        <div class="stat-pill" title="Immunity Level (Drop from hazards or unexpected events)">
+          <div class="stat-icon">🛡️</div>
+          <div class="stat-details">
+            <div class="stat-label-row">
+              <span>IMMUNITY</span>
+              <span id="stat-immunity-val">100%</span>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill immunity" id="bar-immunity-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⭐ Experience Bar -->
+        <div class="stat-pill" title="Experience Points gained permanently from tasks">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-details">
+            <div class="stat-label-row">
+              <span>XP / LEVEL</span>
+              <span id="stat-xp-val">0 XP</span>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill xp" id="bar-xp-fill" style="width: 10%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="hud-actions">
+        <button id="btn-hud-levels" class="icon-btn" title="Mission Map / Level Select">🗺️</button>
+        <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound">🔊</button>
+        <button id="btn-hud-help" class="icon-btn" title="Robot Guide Advice">🤖</button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         SCREEN 1: OPENING PAGE
+         ==================================================================== -->
+    <main id="screen-opening" class="screen active">
+      <div class="hero-box">
+        <div class="hero-badge">⭐ NASA & COSMOS MISSION ACADEMY</div>
+        <h1 class="game-title">JUNIOR ASTRONAUT<br>MISSION TRAINER</h1>
+        <p class="game-subtitle">
+          Welcome future explorer! Blast off into a cute space adventure. Learn real astronaut skills, survive the Moon, and return home safely!
+        </p>
+
+        <!-- Preview avatars circle row -->
+        <div class="opening-characters-preview" id="opening-avatars-preview">
+          <!-- Populated by JS -->
+        </div>
+
+        <button id="btn-start-mission" class="btn-primary-large">
+          <span>🚀 START MISSION</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         SCREEN 1B: LAUNCH SEQUENCE ANIMATION (EARTH -> COUNTDOWN -> MOON)
+         ==================================================================== -->
+    <section id="screen-launch-intro" class="screen">
+      <!-- Moon in the sky -->
+      <div class="moon-destination"></div>
+
+      <!-- Center Countdown and Caption -->
+      <div class="launch-overlay-center">
+        <div class="countdown-number" id="launch-countdown-text"></div>
+        <div class="launch-caption" id="launch-caption-text" style="display: none;">
+          “Are you ready for the mission buddy?”
+        </div>
+      </div>
+
+      <!-- Rocket on Earth launch pad -->
+      <div class="launch-rocket-container" id="launch-rocket-actor">
+        <div class="rocket-svg-wrap">
+          <svg viewBox="0 0 100 160" width="100%" height="100%">
+            <!-- Rocket Body -->
+            <path d="M 50 10 C 35 40 30 110 30 130 L 70 130 C 70 110 65 40 50 10 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="3" />
+            <!-- Nose Cone -->
+            <path d="M 50 10 C 40 28 35 45 35 50 L 65 50 C 65 45 60 28 50 10 Z" fill="#EF4444" stroke="#0F172A" stroke-width="2" />
+            <!-- Fins -->
+            <polygon points="30,110 12,138 30,135" fill="#EF4444" stroke="#0F172A" stroke-width="2" />
+            <polygon points="70,110 88,138 70,135" fill="#EF4444" stroke="#0F172A" stroke-width="2" />
+            <polygon points="50,110 50,136 53,136 53,110" fill="#CBD5E1" />
+            <!-- Cockpit Round Window -->
+            <circle cx="50" cy="72" r="14" fill="#38BDF8" stroke="#0284C7" stroke-width="3" />
+            <circle cx="46" cy="68" r="4" fill="#FFFFFF" />
+            <!-- Thruster Nozzle -->
+            <polygon points="40,130 60,130 65,142 35,142" fill="#475569" stroke="#0F172A" stroke-width="2" />
+          </svg>
+        </div>
+        <!-- Fire & Thrust Trail -->
+        <div class="rocket-flames"></div>
+      </div>
+
+      <!-- Smoke cloud effect at base -->
+      <div class="launch-smoke-cloud"></div>
+
+      <!-- Launch pad structure -->
+      <div class="launch-pad-structure">
+        <div class="launch-scaffold"></div>
+        <div class="launch-base-platform"></div>
+      </div>
+
+      <!-- Earth Horizon Landscape -->
+      <div class="earth-horizon"></div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 2: CREATE YOUR ASTRONAUT
+         ==================================================================== -->
+    <section id="screen-astronaut-creator" class="screen">
+      <div class="creator-panel">
+        <div class="section-header">
+          <h2>🧑‍🚀 CREATE YOUR ASTRONAUT</h2>
+          <p>Choose your cute trainee cadet, set your ID, and choose your training difficulty!</p>
+        </div>
+
+        <!-- Trainee Info Form -->
+        <div class="creator-form-row">
+          <!-- Trainee ID -->
+          <div class="form-group">
+            <label class="form-label" for="input-trainee-id">
+              <span>🆔 TRAINEE ID</span>
+            </label>
+            <div class="input-with-button">
+              <input type="text" id="input-trainee-id" class="text-input" value="ASTRO-707" maxlength="14" placeholder="Enter ID...">
+              <button id="btn-random-id" class="btn-secondary" title="Randomize ID">🎲 Random</button>
+            </div>
+          </div>
+
+          <!-- Trainee Name -->
+          <div class="form-group">
+            <label class="form-label" for="input-trainee-name">
+              <span>✏️ ASTRONAUT NAME</span>
+            </label>
+            <input type="text" id="input-trainee-name" class="text-input" value="Captain Maya" maxlength="20" placeholder="Your Name or Call-Sign...">
+          </div>
+        </div>
+
+        <!-- Choose a Character (6 Cute Animal Astronauts) -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">
+            <span>🐾 CHOOSE YOUR ANIMAL ASTRONAUT (6 Cute Cadets)</span>
+          </label>
+          <div class="characters-grid" id="characters-selection-grid">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Game Mode Selection -->
+        <div class="form-group">
+          <label class="form-label">
+            <span>⚙️ CHOOSE GAME MODE</span>
+          </label>
+          <div class="mode-selection-container">
+            <!-- Basic Mode -->
+            <div class="mode-card selected" id="mode-opt-basic" data-mode="basic">
+              <div class="mode-card-icon">🛡️</div>
+              <div class="mode-card-info">
+                <h4>Basic Mode</h4>
+                <p>Safety shield enabled! Immunity never falls to zero. Fast, smooth, and friendly completion for young cadets.</p>
+              </div>
+            </div>
+
+            <!-- Advanced Mode -->
+            <div class="mode-card" id="mode-opt-advanced" data-mode="advanced">
+              <div class="mode-card-icon">🚀</div>
+              <div class="mode-card-info">
+                <h4>Advanced Mode</h4>
+                <p>Authentic space conditions! Immunity is affected by hazards and mistakes. Requires strategy and care.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="creator-actions">
+          <button id="btn-confirm-astronaut" class="btn-primary-large">
+            <span>⭐ CONFIRM ASTRONAUT & GO TO MISSIONS</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 3: LEVEL SELECTION
+         ==================================================================== -->
+    <section id="screen-level-select" class="screen">
+      <div class="section-header">
+        <h2>🗺️ MISSION LEVEL SELECTION</h2>
+        <p>Complete each space milestone to unlock the next frontier!</p>
+      </div>
+
+      <div class="levels-grid">
+        <!-- Level 1: Earth Workshop -->
+        <div class="level-card unlocked" id="level-card-1">
+          <div class="level-icon-badge">🌍</div>
+          <div class="level-tag">LEVEL 1 — TRAINING</div>
+          <h3 class="level-title">Earth Workshop</h3>
+          <p class="level-desc">
+            Train at NASA's Earth facility! Fix life support circuits, assemble radiation shielding, and deploy solar power arrays.
+          </p>
+          <div class="level-tasks-tracker">
+            <div class="task-indicator-dot" id="dot-1-1" title="Task 1: Fix Oxygen System">1</div>
+            <div class="task-indicator-dot" id="dot-1-2" title="Task 2: Build Radiation Shielding">2</div>
+            <div class="task-indicator-dot" id="dot-1-3" title="Task 3: Generate Power">3</div>
+          </div>
+          <button class="btn-level-play" id="btn-play-level-1">
+            <span>ENTER LEVEL 1 🚀</span>
+          </button>
+        </div>
+
+        <!-- Level 2: Moon Survival -->
+        <div class="level-card locked" id="level-card-2">
+          <div class="level-icon-badge">🌕</div>
+          <div class="level-tag">LEVEL 2 — SURVIVAL</div>
+          <h3 class="level-title">Moon Survival</h3>
+          <p class="level-desc">
+            Survive in low gravity! Repair lunar base leaks, grow fresh food in the hydroponics bay, and manage critical power grids.
+          </p>
+          <div class="level-tasks-tracker">
+            <div class="task-indicator-dot" id="dot-2-1" title="Task 1: Maintain Life Support">1</div>
+            <div class="task-indicator-dot" id="dot-2-2" title="Task 2: Grow Food">2</div>
+            <div class="task-indicator-dot" id="dot-2-3" title="Task 3: Save Power">3</div>
+          </div>
+          <button class="btn-level-play" id="btn-play-level-2" disabled>
+            <span>LOCKED 🔒</span>
+          </button>
+        </div>
+
+        <!-- Level 3: Return to Earth -->
+        <div class="level-card locked" id="level-card-3">
+          <div class="level-icon-badge">🚀</div>
+          <div class="level-tag">LEVEL 3 — RETURN</div>
+          <h3 class="level-title">Return to Earth</h3>
+          <p class="level-desc">
+            Survive cosmic radiation storms, pack and ration return supplies, and execute the final rocket launch safely home!
+          </p>
+          <div class="level-tasks-tracker">
+            <div class="task-indicator-dot" id="dot-3-1" title="Task 1: Survive Radiation Storm">1</div>
+            <div class="task-indicator-dot" id="dot-3-2" title="Task 2: Manage Food Supplies">2</div>
+            <div class="task-indicator-dot" id="dot-3-3" title="Task 3: Launch Back to Earth">3</div>
+          </div>
+          <button class="btn-level-play" id="btn-play-level-3" disabled>
+            <span>LOCKED 🔒</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 4: MAIN GAMEPLAY ARENA
+         ==================================================================== -->
+    <section id="screen-gameplay" class="screen">
+      <!-- Mission Breadcrumb & 60s Countdown Bar -->
+      <div class="gameplay-header-card">
+        <div class="task-breadcrumbs">
+          <span id="breadcrumb-level">Level 1: Earth Workshop</span>
+          <span>➔</span>
+          <span id="breadcrumb-task">Task 1: Oxygen System</span>
+          <span class="badge-subtask" id="badge-subtask">Part A</span>
+        </div>
+
+        <div class="gameplay-timer-box" title="Task Countdown (Max 60 seconds)">
+          <div class="timer-icon">⏳</div>
+          <div class="timer-seconds" id="task-timer-val">60s</div>
+        </div>
+      </div>
+
+      <!-- Robo-Buddy Guidance Banner -->
+      <div class="robot-guide-banner">
+        <div class="robot-avatar">
+          <svg width="42" height="42" viewBox="0 0 100 100">
+            <!-- Antenna -->
+            <line x1="50" y1="20" x2="50" y2="35" stroke="#FFFFFF" stroke-width="6" />
+            <circle cx="50" cy="15" r="9" fill="#FDE047" />
+            <!-- Head -->
+            <rect x="20" y="35" width="60" height="48" rx="14" fill="#0284C7" stroke="#FFFFFF" stroke-width="4" />
+            <!-- Screen Eyes -->
+            <circle cx="38" cy="54" r="7" fill="#10B981" />
+            <circle cx="62" cy="54" r="7" fill="#10B981" />
+            <!-- Smile -->
+            <path d="M 38 68 Q 50 78 62 68" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="robot-speech">
+          <div class="robot-name">🤖 ROBO-BUDDY GUIDE</div>
+          <div class="robot-text" id="robot-speech-text">
+            "Hello Cadet! Let's get to work! Check the mission objective below."
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Interactive Arena Container -->
+      <div class="interactive-arena" id="interactive-arena">
+        <!-- Dynamic interactive mini-game HTML will be injected here by JS -->
+        <div id="task-stage-content"></div>
+
+        <!-- Third-Person Astronaut Avatar Presence in the scene -->
+        <div class="arena-astronaut-presence" id="arena-astronaut-presence">
+          <div class="astronaut-chat-bubble" id="astronaut-bubble-text">Ready!</div>
+          <div id="arena-avatar-slot"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ====================================================================
+       MODALS: APPRECIATION, LEVEL COMPLETE, IMMUNITY REST, FINALE
+       ==================================================================== -->
+
+  <!-- Appreciation / Task Success Modal -->
+  <div class="modal-overlay" id="modal-task-success">
+    <div class="modal-card">
+      <div class="modal-icon-badge">🎉</div>
+      <h3 class="modal-title" id="modal-success-title">Task Complete!</h3>
+      <p class="modal-body" id="modal-success-msg">
+        Awesome job! You fixed the system with true astronaut precision.
+      </p>
+
+      <div class="modal-stats-gain">
+        <div class="gain-pill xp" id="modal-gain-xp">+35 XP Gained ⭐</div>
+        <div class="gain-pill energy" id="modal-cost-energy">-15 Energy ⚡</div>
+      </div>
+
+      <button class="btn-primary-large" id="btn-next-task" style="font-size: 1.25rem; padding: 14px 34px;">
+        <span>CONTINUE TO NEXT CHALLENGE ➔</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Immunity Drop / Task Retry Modal -->
+  <div class="modal-overlay" id="modal-immunity-warn">
+    <div class="modal-card">
+      <div class="modal-icon-badge">🛡️⚠️</div>
+      <h3 class="modal-title" style="color: #F87171;">Immunity Depleted!</h3>
+      <p class="modal-body" id="modal-warn-msg">
+        Your astronaut suit vitals or immunity are too low to safely proceed. Rest and recalibrate your suit to recover immunity!
+      </p>
+
+      <div class="modal-stats-gain">
+        <div class="gain-pill energy">-10 Energy to recover vitals</div>
+      </div>
+
+      <button class="btn-primary-large" id="btn-recover-immunity" style="background: linear-gradient(135deg, #0284C7, #10B981); font-size: 1.2rem; padding: 14px 30px;">
+        <span>🛌 REST & RECOVER VITALS</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Level Complete & Rocket Transition Modal -->
+  <div class="modal-overlay" id="modal-level-complete">
+    <div class="modal-card">
+      <div class="modal-icon-badge">🏆🚀</div>
+      <h3 class="modal-title" id="modal-level-title">Level 1 Complete!</h3>
+      <p class="modal-body" id="modal-level-msg">
+        Sensational work! You have mastered the Earth Workshop. Your energy has been fully restored!
+      </p>
+
+      <div class="modal-stats-gain">
+        <div class="gain-pill xp" id="modal-level-xp">+100 Permanent XP ⭐</div>
+        <div class="gain-pill" style="color: #34D399; border-color: #34D399;">⚡ Energy Restored to 100%!</div>
+      </div>
+
+      <button class="btn-primary-large" id="btn-launch-next-level">
+        <span id="btn-launch-next-text">LAUNCH TO THE MOON 🌕➔</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mission Complete / Grand Finale Modal & Certificate -->
+  <div class="modal-overlay" id="modal-grand-finale">
+    <div class="modal-card" style="max-width: 680px; padding: 25px;">
+      <div class="certificate-frame" id="printable-certificate">
+        <div class="certificate-header">
+          <div style="font-size: 2.2rem; margin-bottom: 6px;">🚀 🌟 🎓</div>
+          <h3>JUNIOR ASTRONAUT DIPLOMA</h3>
+          <p style="font-size: 0.95rem; color: #475569; font-weight: 700;">NASA COSMOS MISSION ACADEMY</p>
+        </div>
+
+        <div style="margin: 18px 0; border-top: 2px dashed #94A3B8; border-bottom: 2px dashed #94A3B8; padding: 16px 0;">
+          <p style="font-size: 1rem; color: #334155;">This is proudly presented to:</p>
+          <h2 id="cert-trainee-name" style="font-size: 2.4rem; color: #1E1B4B; margin: 4px 0; font-weight: 900;">Captain Maya</h2>
+          <p id="cert-trainee-id" style="font-weight: 800; color: #4F46E5; font-size: 1.1rem;">Trainee ID: ASTRO-707</p>
+
+          <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 12px 0;">
+            <div id="cert-avatar-slot" style="width: 80px; height: 80px;"></div>
+            <div style="text-align: left; font-size: 0.95rem;">
+              <div><strong>Rank:</strong> Master Cosmic Explorer</div>
+              <div><strong>Difficulty:</strong> <span id="cert-mode">Basic</span></div>
+              <div><strong>Final Experience:</strong> <span id="cert-xp" style="color: #D97706; font-weight: 800;">500 XP ⭐</span></div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.95rem; color: #475569; line-height: 1.4;">
+            For successfully completing Earth training, surviving lunar expeditions, and navigating safely back to Earth!
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #64748B;">
+          <span>Commander Robo-Buddy 🤖</span>
+          <span>Officially Certified 🪐</span>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 14px; margin-top: 20px; flex-wrap: wrap;">
+        <button class="btn-secondary" id="btn-print-cert" style="padding: 12px 24px; font-size: 1rem;">
+          🖨️ Print / Save Certificate
+        </button>
+        <button class="btn-primary-large" id="btn-replay-game" style="font-size: 1.1rem; padding: 12px 28px;">
+          🔄 PLAY AGAIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
